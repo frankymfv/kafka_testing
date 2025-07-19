@@ -1,16 +1,23 @@
-# Kafka Authentication Setup Guide
+# Kafka SASL Security Setup Guide
 
 This guide shows you how to set up SASL/PLAIN authentication for your Kafka cluster.
 
 ## Current Status
 
-Your Kafka setup is currently running **without authentication** for simplicity. The authentication code is already implemented in your Go application and will work when you enable it.
+Your Kafka setup is currently running **without authentication** for stability. The authentication code is already implemented in your Go application and will work when you enable it.
 
-## How to Enable Authentication
+## ✅ What's Already Implemented
+
+- ✅ **JAAS Configuration**: `kafka_jaas.conf` with SASL/PLAIN setup
+- ✅ **Go Application Support**: Authentication code in `config/kafka.go`
+- ✅ **Environment Variables**: Support for `KAFKA_USERNAME` and `KAFKA_PASSWORD`
+- ✅ **Documentation**: Complete setup instructions
+
+## 🔧 How to Enable SASL Security
 
 ### Step 1: Update docker-compose.yml
 
-Replace your current Kafka service configuration with this authenticated version:
+**⚠️ Important**: The SASL setup requires careful configuration. Here's the working configuration:
 
 ```yaml
 kafka:
@@ -101,6 +108,36 @@ func GetBroker() string {
 ```bash
 docker-compose down -v
 docker-compose up -d
+```
+
+## 🚨 Troubleshooting SASL Setup
+
+### Common Issues
+
+1. **Zookeeper Authentication Errors**: 
+   - Problem: Kafka tries to authenticate with Zookeeper
+   - Solution: Use `-Dzookeeper.sasl.client=false` in KAFKA_OPTS
+
+2. **Container Startup Failures**:
+   - Problem: Kafka container stops during startup
+   - Solution: Check logs with `docker-compose logs kafka`
+
+3. **Port Configuration Issues**:
+   - Problem: Wrong listener configuration
+   - Solution: Ensure proper listener mapping
+
+### Working Configuration
+
+The most stable SASL configuration is:
+
+```yaml
+environment:
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT
+  KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092,SASL_PLAINTEXT://kafka:29093
+  KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,SASL_PLAINTEXT://0.0.0.0:29093
+  KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+  KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+  KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/kafka_jaas.conf -Dzookeeper.sasl.client=false"
 ```
 
 ## Available Users
