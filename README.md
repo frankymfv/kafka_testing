@@ -102,8 +102,11 @@ The application now uses environment variables for Kafka configuration. You can 
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
 | `KAFKA_TOPIC_NAME` | `test-topic` | Kafka topic name |
-| `KAFKA_BROKER` | `localhost:9092` | Kafka broker address (host:port) |
-| `KAFKA_GROUP_ID` | `test-consumer-group` | Kafka consumer group ID |
+| `KAFKA_BROKER` | `localhost:9092` | Single Kafka broker address (host:port) |
+| `KAFKA_BROKERS` | (none) | Multiple Kafka broker addresses (comma-separated) |
+| `KAFKA_GROUP_ID` | `test-consumer-group` | Main Kafka consumer group ID |
+| `KAFKA_CHANGE_DATA_GROUP_ID` | `change-data-consumer-group` | ChangeData consumer group ID |
+| `KAFKA_TOPIC_EMPTIER_GROUP_ID` | `topic-emptier` | Topic emptier consumer group ID |
 | `KAFKA_USERNAME` | (none) | Kafka username for authentication |
 | `KAFKA_PASSWORD` | (none) | Kafka password for authentication |
 
@@ -115,7 +118,12 @@ The application automatically loads environment variables from a `.env` file in 
 # Kafka Configuration
 KAFKA_TOPIC_NAME=test-topic
 KAFKA_BROKER=localhost:9092
+KAFKA_BROKERS=localhost:9097,localhost:9098,localhost:9099
+
+# Consumer Group IDs
 KAFKA_GROUP_ID=test-consumer-group
+KAFKA_CHANGE_DATA_GROUP_ID=change-data-consumer-group
+KAFKA_TOPIC_EMPTIER_GROUP_ID=topic-emptier
 
 # Kafka Authentication (optional)
 KAFKA_USERNAME=admin
@@ -127,7 +135,10 @@ You can also set environment variables directly:
 ```bash
 export KAFKA_TOPIC_NAME=my-topic
 export KAFKA_BROKER=kafka.example.com:9092
+export KAFKA_BROKERS=kafka1.example.com:9092,kafka2.example.com:9092,kafka3.example.com:9092
 export KAFKA_GROUP_ID=my-consumer-group
+export KAFKA_CHANGE_DATA_GROUP_ID=my-change-data-group
+export KAFKA_TOPIC_EMPTIER_GROUP_ID=my-topic-emptier
 export KAFKA_USERNAME=admin
 export KAFKA_PASSWORD=admin-secret
 ```

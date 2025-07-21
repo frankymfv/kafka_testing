@@ -7,6 +7,8 @@ toolchain go1.24.1
 require (
 	github.com/Shopify/sarama v1.38.1
 	github.com/google/uuid v1.3.0
+	github.com/joho/godotenv v1.5.1
+	github.com/xdg-go/scram v1.1.2
 	google.golang.org/genproto v0.0.0-20250715232539-7130f93afb79
 	google.golang.org/protobuf v1.36.6
 )
@@ -25,10 +27,12 @@ require (
 	github.com/jcmturner/gofork v1.7.6 // indirect
 	github.com/jcmturner/gokrb5/v8 v8.4.3 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/klauspost/compress v1.15.14 // indirect
 	github.com/pierrec/lz4/v4 v4.1.17 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
+	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
+	github.com/xdg-go/stringprep v1.0.4 // indirect
 	golang.org/x/crypto v0.39.0 // indirect
 	golang.org/x/net v0.41.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
 )

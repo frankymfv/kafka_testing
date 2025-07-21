@@ -99,7 +99,7 @@ func (c *Consumer) Start(ctx context.Context) error {
 	kafkaConfig := config.GetConsumerConfig()
 
 	// Create consumer group
-	group, err := sarama.NewConsumerGroup([]string{config.GetBroker()}, c.groupID, kafkaConfig)
+	group, err := sarama.NewConsumerGroup(config.GetBrokers(), c.groupID, kafkaConfig)
 	if err != nil {
 		return fmt.Errorf("failed to create consumer group: %w", err)
 	}

@@ -1,1 +1,4 @@
 .vscode
+.env
+my_consumer_linux
+list_kafka_topic

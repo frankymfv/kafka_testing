@@ -28,7 +28,7 @@ type ChangeDataProducer struct {
 func NewChangeDataProducer() (*ChangeDataProducer, error) {
 	kafkaConfig := config.GetProducerConfig()
 
-	producer, err := sarama.NewSyncProducer([]string{config.GetBroker()}, kafkaConfig)
+	producer, err := sarama.NewSyncProducer(config.GetBrokers(), kafkaConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create producer: %w", err)
 	}

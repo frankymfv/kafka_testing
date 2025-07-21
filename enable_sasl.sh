@@ -1,4 +1,4 @@
-#!/bin/bash
+`#!/bin/bash
 
 echo "🔐 Enabling SASL Security for Kafka..."
 echo "======================================"
@@ -85,4 +85,4 @@ echo "🌐 Access points:"
 echo "   - Kafka UI: http://localhost:8080"
 echo "   - Kafka SASL Port: localhost:29093"
 echo ""
-echo "📖 For more information, see AUTHENTICATION_SETUP.md" 
+echo "📖 For more information, see AUTHENTICATION_SETUP.md" `

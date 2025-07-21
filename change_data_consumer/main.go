@@ -26,7 +26,7 @@ type ChangeDataConsumer struct {
 // NewChangeDataConsumer creates a new ChangeDataMessage consumer
 func NewChangeDataConsumer() (*ChangeDataConsumer, error) {
 	return &ChangeDataConsumer{
-		groupID: "change-data-consumer-group",
+		groupID: config.GetChangeDataGroupID(),
 		topic:   config.GetTopicName(),
 	}, nil
 }
@@ -65,19 +65,24 @@ func (c *ChangeDataConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, c
 
 // processChangeDataMessage processes a single ChangeDataMessage
 func (c *ChangeDataConsumer) processChangeDataMessage(session sarama.ConsumerGroupSession, message *sarama.ConsumerMessage) error {
-	// Log message details
+	// Step 1: Log message details
+	step1Start := time.Now()
 	log.Printf("Received message - Topic: %s, Partition: %d, Offset: %d, Key: %s",
 		message.Topic, message.Partition, message.Offset, string(message.Key))
+	calculateElapsedTime(step1Start, "Log message details")
 
-	// Print headers if available
+	// Step 2: Print headers if available
+	step2Start := time.Now()
 	if len(message.Headers) > 0 {
 		log.Printf("Message headers:")
 		for _, header := range message.Headers {
 			log.Printf("  %s: %s", string(header.Key), string(header.Value))
 		}
 	}
+	calculateElapsedTime(step2Start, "Print headers")
 
-	// Check if this is a ChangeDataMessage
+	// Step 3: Check content type
+	step3Start := time.Now()
 	contentType := ""
 	for _, header := range message.Headers {
 		if string(header.Key) == "content-type" {
@@ -85,7 +90,10 @@ func (c *ChangeDataConsumer) processChangeDataMessage(session sarama.ConsumerGro
 			break
 		}
 	}
+	calculateElapsedTime(step3Start, "Check content type")
 
+	// Step 4: Parse message based on content type
+	step4Start := time.Now()
 	if contentType == "application/x-protobuf" {
 		// Try to parse as ChangeDataMessage
 		var changeDataMsg models.ChangeDataMessage
@@ -105,16 +113,28 @@ func (c *ChangeDataConsumer) processChangeDataMessage(session sarama.ConsumerGro
 			log.Printf("Parsed JSON message: %s", msg.String())
 		}
 	}
+	calculateElapsedTime(step4Start, "Parse message")
 
-	// Simulate some processing time
+	// Step 5: Simulate processing time
+	step5Start := time.Now()
 	time.Sleep(500 * time.Millisecond)
+	calculateElapsedTime(step5Start, "Simulate processing")
 
-	// Mark message as processed
+	// Step 6: Mark message as processed
+	step6Start := time.Now()
 	session.MarkMessage(message, "")
 	log.Printf("Message processed - Partition: %d, Offset: %d \n", message.Partition, message.Offset)
+	calculateElapsedTime(step6Start, "Mark message")
 
-	// Commit immediately for consistency
+	// Step 7: Commit immediately for consistency
+	step7Start := time.Now()
 	session.Commit()
+	calculateElapsedTime(step7Start, "Commit")
+
+	// Total execution time
+	totalTime := time.Since(step1Start)
+	log.Printf("Total processChangeDataMessage execution time: %v", totalTime)
+
 	return nil
 }
 
@@ -165,12 +185,18 @@ func (c *ChangeDataConsumer) logChangeDataMessage(msg *models.ChangeDataMessage)
 	log.Printf("========================")
 }
 
+// calculateElapsedTime calculates and logs the elapsed time for a given step
+func calculateElapsedTime(startTime time.Time, stepName string) {
+	elapsed := time.Since(startTime)
+	log.Printf("Step %s execution time: %v", stepName, elapsed)
+}
+
 // Start starts the consumer
 func (c *ChangeDataConsumer) Start(ctx context.Context) error {
 	kafkaConfig := config.GetConsumerConfig()
 
 	// Create consumer group
-	group, err := sarama.NewConsumerGroup([]string{config.GetBroker()}, c.groupID, kafkaConfig)
+	group, err := sarama.NewConsumerGroup(config.GetBrokers(), c.groupID, kafkaConfig)
 	if err != nil {
 		return fmt.Errorf("failed to create consumer group: %w", err)
 	}

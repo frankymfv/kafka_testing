@@ -17,7 +17,7 @@ import (
 var (
 	topicName = flag.String("topic", config.GetTopicName(), "Topic to empty")
 	broker    = flag.String("broker", config.GetBroker(), "Kafka broker address")
-	groupID   = flag.String("group", "topic-emptier", "Consumer group ID")
+	groupID   = flag.String("group", config.GetTopicEmptierGroupID(), "Consumer group ID")
 	confirm   = flag.Bool("confirm", false, "Confirm that you want to empty the topic")
 )
 
@@ -76,14 +76,20 @@ func (t *TopicEmptier) ConsumeClaim(session sarama.ConsumerGroupSession, claim s
 // EmptyTopic empties the specified topic
 func (t *TopicEmptier) EmptyTopic(ctx context.Context) error {
 	// Configure consumer
-	config := sarama.NewConfig()
-	config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
-	config.Consumer.Offsets.Initial = sarama.OffsetOldest
-	config.Consumer.Offsets.AutoCommit.Enable = false
-	config.Version = sarama.V2_8_0_0
+	saramaConfig := sarama.NewConfig()
+	saramaConfig.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
+	saramaConfig.Consumer.Offsets.Initial = sarama.OffsetOldest
+	saramaConfig.Consumer.Offsets.AutoCommit.Enable = false
+	saramaConfig.Version = sarama.V2_8_0_0
+
+	// Use configured brokers or fallback to flag value
+	brokers := config.GetBrokers()
+	if len(brokers) == 0 {
+		brokers = []string{*broker}
+	}
 
 	// Create consumer group
-	group, err := sarama.NewConsumerGroup([]string{*broker}, t.groupID, config)
+	group, err := sarama.NewConsumerGroup(brokers, t.groupID, saramaConfig)
 	if err != nil {
 		return fmt.Errorf("failed to create consumer group: %w", err)
 	}
